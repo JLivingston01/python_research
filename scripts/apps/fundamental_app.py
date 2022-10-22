@@ -17,6 +17,9 @@ import json
 from dotenv import load_dotenv
 import os
 
+import warnings
+warnings.simplefilter("ignore")
+
 def request_fundamentals(Tickers: list, consumerKey: str, how: str = 'DF') -> pd.DataFrame:
     """_summary_
 
@@ -140,7 +143,7 @@ def make_app() -> dash.Dash:
                     html.Div( #START HEADER
                             [
                                     html.Div([html.H1("LOGO GOES HERE")],className="three columns"),
-                                    html.Div([html.H5('MENU AND INTRO INFO')],className="nine columns"),
+                                    html.Div([html.H5('Ranking the Large Cap Stocks')],className="nine columns"),
                                     ],
                             className='twelve columns'), #END HEADER
                     html.Div( #START BODY
@@ -156,21 +159,21 @@ def make_app() -> dash.Dash:
                                     ),
                                                             ],className='three columns',id='pane_0'),
                                                     html.Div([
-                                                            html.H1("CONTENT PANE 1"),
+                                                            #html.H1("CONTENT PANE 1"),
                                                             html.Div(id='output_1'),
-                                                            ],className='five columns',id='pane_1'),
-                                                    html.Div([
-                                                            html.H1("CONTENT PANE 2"),
-                                                            ],className='four columns',id='pane_2'),
+                                                            ],className='nine columns',id='pane_1'),
+                                                    #html.Div([
+                                                    #        #html.H1("CONTENT PANE 2"),
+                                                    #        ],className='four columns',id='pane_2'),
                                                     ],
                                                 className='twelve columns'), #END ROW
                                     html.Div( #START ROW
                                             [
                                                     html.Div([
-                                                            html.H1("CONTENT PANE 3"),
+                                                            #html.H1("CONTENT PANE 3"),
                                                             ],className='six columns',id='pane_3'),
                                                     html.Div([
-                                                            html.H1("CONTENT PANE 4"),
+                                                            #html.H1("CONTENT PANE 4"),
                                                             ],className='six columns',id='pane_4'),
                                                     ],
                                                 className='twelve columns'), #END ROW
@@ -233,7 +236,7 @@ def make_app() -> dash.Dash:
         out.sort_values(by='meanRank',inplace=True)
 
         
-        data = out.to_dict('rows')
+        data = out.to_dict('records')
         columns =  [{"name": i, "id": i,} for i in (out.columns)]
 
 
@@ -241,7 +244,12 @@ def make_app() -> dash.Dash:
             'whiteSpace': 'normal',
             'height': 'auto',
             'lineHeight': '15px'
-            },data=data, columns=columns)
+            },
+            sort_mode='single',
+            sort_action='native',
+            filter_action="native",
+            page_size=20,
+        data=data, columns=columns)
 
 
         return [html.H5(industry_value),
