@@ -171,10 +171,11 @@ def make_app() -> dash.Dash:
                                             [
                                                     html.Div([
                                                             #html.H1("CONTENT PANE 3"),
-                                                            ],className='six columns',id='pane_3'),
-                                                    html.Div([
+                                                            html.Div(id='output_2'),
+                                                            ],className='twelve columns',id='pane_3'),
+                                                    #html.Div([
                                                             #html.H1("CONTENT PANE 4"),
-                                                            ],className='six columns',id='pane_4'),
+                                                    #        ],className='six columns',id='pane_4'),
                                                     ],
                                                 className='twelve columns'), #END ROW
                                     
@@ -186,7 +187,7 @@ def make_app() -> dash.Dash:
 
 
     @app.callback(
-        Output('output_1','children'),
+        Output('output_2','children'),
         [Input(component_id='industry', component_property='value'),]
     )
     def render_content(industry_value,):
@@ -216,11 +217,13 @@ def make_app() -> dash.Dash:
             rankedCols=rankedCols+metricsFamilies[k]['columns']
             
         knownCols = [i for i in rankdat.columns if 'Known' in i]
-        rankdat['metricsInformed'] = np.sum(rankdat[knownCols],axis=1)
+        rankdat['metricsPositive'] = np.sum(rankdat[knownCols],axis=1)
 
-        rankdat['meanRank']=np.sum(rankdat[rankedCols],axis=1)/rankdat['metricsInformed']
+        rankdat[rankedCols]=rankdat[rankedCols].copy().fillna(1)
 
-        out=rankdat[['symbol','description','meanRank','metricsInformed']].merge(
+        rankdat['meanRank']=np.mean(rankdat[rankedCols],axis=1)
+
+        out=rankdat[['symbol','description','meanRank','metricsPositive']].merge(
             dat[['symbol']+rankedCols],
             on=['symbol'],
             how='left'
