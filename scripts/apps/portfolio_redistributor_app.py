@@ -92,10 +92,12 @@ def make_app() -> dash.Dash:
                     html.Div( #START HEADER
                             [
                                     html.Div([html.H1("LOGO GOES HERE")],className="three columns"),
-                                    html.Div([html.H5('Portfolio Balancer')],className="nine columns"),
-                                    dcc.Store(id='memory', storage_type = 'memory',
+                                    html.Div([html.H5('Portfolio Balancer'),
+                                              html.Button("Refresh Balance",id='balance-refresh',n_clicks=0)
+                                              ],className="nine columns"),
+                                    dcc.Store(id='memory', storage_type = 'session',
                                         data = positions.to_dict('records') ),
-                                    dcc.Store(id='balance-memory', storage_type = 'memory',
+                                    dcc.Store(id='balance-memory', storage_type = 'session',
                                         data = {'balance':balance} ),
                                     ],
                             className='twelve columns'), #END HEADER
@@ -120,6 +122,7 @@ def make_app() -> dash.Dash:
                                                             ],className='three columns',id='pane_0'),
                                                     html.Div([
                                                             #html.H1("CONTENT PANE 1"),
+                                                            html.Div(id='balance-out'),
                                                             html.Div(id='output_1'),
                                                             ],className='nine columns',id='pane_1'),
                                                     #html.Div([
@@ -144,10 +147,20 @@ def make_app() -> dash.Dash:
                     ]
             )   #END DOCUMENT
 
+    @app.callback(
+        Output('memory','data'),
+        Output('balance-memory','data'),
+        Input('balance-refresh','n_clicks')
+    )
+    def refresh_balance(n_clicks):
+        positionsDict = get_positions()
+        balance = positionsDict['securitiesAccount']['currentBalances']['equity']
+        positions = process_positions(positionsDict)
+        return [positions.to_dict("records"),{'balance':balance}]
         
     @app.callback(
         Output('output_1', 'children'),
-        Output('memory', 'data'),
+        Output('balance-out', 'children'),
         Input('table-editing', 'data'),
         Input('table-editing', 'columns'),
         Input('memory', 'data'),
@@ -179,9 +192,8 @@ def make_app() -> dash.Dash:
             page_size=50,
             data=data, columns=columns)
 
-        
+        return [outTable,html.H4(f"Balance: {balance}")]
 
-        return [outTable,positions.to_dict('records')]
 
     return app
 
