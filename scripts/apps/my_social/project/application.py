@@ -6,10 +6,18 @@ from flask import (
     flash
     )
 
+from .models import (
+    db,
+    User
+)
+
 def create_app():
     app = Flask(__name__)
 
     app.config['SECRET_KEY'] = 'secret-key-goes-here'    
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite'
+
+    db.init_app(app)
     
     @app.route('/')
     def index():
@@ -37,5 +45,20 @@ def create_app():
             return render_template('login.html')
 
         return render_template('home.html')
-    
+
+    @app.route('/signup')
+    def signup():
+        return render_template('signup.html')
+
+    @app.route('/signup', methods=['POST'])
+    def signup_post():
+
+        email = request.form.get('email')
+        password = request.form.get('password')
+
+
+        flash('Signup will work later.')
+        return render_template('signup.html')
+
+
     return app

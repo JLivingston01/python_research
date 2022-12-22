@@ -5,6 +5,13 @@
 <h3 class="title">
     Login
 </h3>
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+    <div class="notification">
+        {{ messages[0] }}
+    </div>
+{% endif %}
+{% endwith %}
 <form method="POST" action="/login">
     <input type="email" name="email" placeholder="user@mail.com">
     <input type="password" name="password" placeholder="********">
