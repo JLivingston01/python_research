@@ -93,6 +93,7 @@ def create_app():
     def signup_post():
 
         email = request.form.get('email')
+        username = request.form.get('username')
         password = request.form.get('password')
         firstname = request.form.get('firstname')
         lastname = request.form.get('lastname')
@@ -109,6 +110,7 @@ def create_app():
 
         new_user = User(email=email,
             password= generate_password_hash(password,method='sha256'),
+            username=username,
             firstname=firstname,
             lastname=lastname,
             location=location,
@@ -121,6 +123,16 @@ def create_app():
         db.session.commit()
 
         return redirect(url_for('login'))
+
+    @app.route('/u/<string:username>')
+    def user_detail(username):
+
+        user = User.query.filter_by(username=username).first()
+
+        un = user.username
+
+        return render_template('userdetail.html',un=un)
+
 
     @app.route('/amiloggedin')
     @login_required
